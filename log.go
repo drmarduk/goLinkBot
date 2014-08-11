@@ -11,8 +11,15 @@ type Log struct {
 }
 
 func (l *Log) AddLink(user, url, content string) {
-	id, err := ctxDb.AddLink(user, url, content, 0, time.Now()) // in db adden
-	if err == false {
+	link := make(TblLinks)
+	link.User = user
+	link.Url = url
+	link.Post = content
+	link.Status = 0
+	link.Tstamp = time.Now()
+
+	id, err := link.Save()
+	if err != nil {
 		fmt.Printf("log.AddLink: %s\n", "Could not add new link")
 	}
 	// crawl

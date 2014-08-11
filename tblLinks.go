@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
 	"time"
 )
 
@@ -11,58 +10,67 @@ type TblLinks struct {
 	Id     int
 	User   string
 	Url    string
-	Post   string
 	Status int
 	Tstamp time.Time
 	Src    []byte
+	Post   string
+	db     *Db
 }
 
-func (db *Db) AddLink(user, url, post string, status int, timestmap time.Time) (int64, bool) {
-	var err error
-	var result sql.Result
-	db.Open()
-	defer db.Close()
+func (tbl *TblLinks) Open(id int) error {
+	tbl.db = new(Db)
+	tbl.db.Open()
+	defer tbl.db.Close()
+	query := "select id, user, url, status, tstamp, src, post from links where id = ?"
+	err := tbl.db.con.QueryRow(query, id).Scan(&tbl.Id, &tbl.User, &tbl.Url, &tbl.Status, &tbl.Tstamp,
+		&tbl.Src, &tbl.Post)
 
-	// escape
-	user = template.HTMLEscapeString(user)
-	url = template.HTMLEscapeString(url)
-	post = template.HTMLEscapeString(post)
-
-	query := "insert into links (user, url, post, tstamp, status) values(?, ?, ?, ?, ?);"
-	result, err = db.con.Exec(query, user, url, post, timestmap, status)
 	if err != nil {
-		fmt.Printf("db.NewLink: %s\n", err.Error())
-		return 0, false
+		fmt.Printf("TblLinks.Open: %s\n", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (tbl *TblLinks) Save() (int, error) {
+	var err error
+	var result *sql.Result
+	tbl.db = new(Db)
+	tbl.db.Open()
+	defer tbl.db.Close()
+	var query string
+	if tbl.Id == 0 { // insert
+		query = "insert into links(user, url, status, tstamp, src, post) values(?, ?, ?, ?, ?, ?)"
+		result, err := tbl.db.con.Exec(query, tbl.User, tbl.Url, tbl.Status, tbl.Tstamp, tbl.Src,
+			tbl.Post)
+	}
+	if tbl.Id > 0 { // update
+		query = "update links set user = ?, url = ?, status = ?, tstamp = ?, src = ?, post = ? where id = ?"
+		result, err := tbl.db.con.Exec(query, tbl.User, tbl.Url, tbl.Status, tbl.Tstamp, tbl.Src,
+			tbl.Post, tbl.Id)
 	}
 
-	id, _ := result.LastInsertId()
-
-	return id, true
-}
-
-func (db *Db) UpdateSource(id int64, src []byte) bool {
-	var err error
-	db.Open()
-	defer db.Close()
-
-	query := "update links set status = 1, src = ? where id = ?"
-	_, err = db.con.Exec(query, src, id)
 	if err != nil {
-		fmt.Printf("db.UpdateSource: %s\n", err.Error())
-		return false
+		fmt.Printf("TblLinks.Save: %s\n", err.Error())
+		return 0, err
 	}
-	return true
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Printf("TblLinks.Save: %s\n", err.Error())
+		return 0, err
+	}
+	return int(id), nil
 }
 
-func (db *Db) SearchBlob(q string) (result []TblLinks, err error) {
-	var rows *sql.Rows
-	db.Open()
-	defer db.Close()
+func /*(tbl *TblLinks) */ LinksSearch(q string) (result []TblLinks, err error) {
+	tbl := new(&Db)
+	tbl.Open()
+	defer tbl.Close()
 
 	query := "select * from links where src like '%" + q + "%' order by tstamp asc"
-	rows, err = db.con.Query(query)
+	rows, err = tbl.con.Query(query)
 	if err != nil {
-		fmt.Printf("db.SearchBlob: %s\n", err.Error())
+		fmt.Printf("tblLinks.Search: %s\n", err.Error())
 		return nil, err
 	}
 

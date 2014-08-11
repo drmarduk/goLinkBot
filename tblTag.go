@@ -8,49 +8,71 @@ import (
 type TblTags struct {
 	Id  int
 	Tag string
+
+	db *sql.DB
 }
 
-/*
-	Fügt einen neuen Tag ein und gibt die Id zurück
-*/
-func (db *Db) NewTag(tag string) int64 {
-	db.Open()
-	defer db.Close()
-	query := "insert into tags(tag) value(?)"
-	result, err := db.con.Exec(query, tag)
+func (tbl *TblTags) Open(id int) error {
+	tbl.db = new(*Db)
+	tbl.db.Open()
+	defer tbl.db.Close()
+	query := "select id, tag from tags where id = ?"
+	err := tbl.db.QueryRow(query, id).Scan(&tbl.Id, &tbl.Tag)
 	if err != nil {
-		fmt.Printf("db.NewTag: %s\n", err.Error())
-		return 0
+		fmt.Printf("TblTags.Open: %s\n", err.Error())
+		return err
 	}
-	id, _ := result.LastInsertId()
-	return id
+	return nil
 }
 
-/*
-	Liefert die Id zu einem speziellen Tag zurück
-*/
-func (db *Db) GetTagId(tag string) int64 {
-	db.Open()
-	defer db.Close()
-	query := "select id from tags where tag = ?"
-	var id int
-	err := db.con.QueryRow(query, tag).Scan(&id)
+func (tbl *TblTags) Save() (int, error) {
+	tbl.db = new(*Db)
+	tbl.db.Open()
+	defer tbl.db.Close()
+	var result *sql.Result
 
-	switch {
-	case err == sql.ErrNoRows:
-		fmt.Printf("db.GetTagId: No rows found.\n")
-		return db.NewTag(tag) // bei 0 recodrds diretk einen einfügen // kA ob das geht
-		return 0
-	case err != nil:
-		fmt.Printf("db.GetTagId: %s\n!", err.Error())
-		return 0
-	default:
-		return int64(id) // on success
+	if tbl.Id == 0 {
+		query := "insert into tags(tag) values(?)"
+		result, err = tbl.db.Exec(query, tbl.Tag)
 	}
+	if tbl.id > 0 {
+		query := "update tags set tag = ? where id = ?"
+		result, err = tbl.db.Exec(query, tbl.Tag, tbl.Id)
+	}
+
+	if err != nil {
+		fmt.Printf("TblTags.Save: %s\n", err.Error())
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+
+	if err != nil {
+		fmt.Printf("TblTags.Save: %s\n", err.Error())
+		return 0, err
+	}
+	return int(id), nil
 }
 
-/*func (db *Db) DeleteTag(id int) bool {
-	query1 := "delete from tags where id = ?"
-	query2 := "delete from hastags where tagid = ?"
+func (tbl *TblTags) Search(q string) ([]TblTags, error) {
+	tbl.db = new(*Db)
+	tbl.db.Open()
+	defer tbl.db.Close()
+	var result []TblTags = make([]TblTags)
+	query := "select id, tag from tags where tag like '%" + q + "%'"
+
+	rows, err := tbl.db.Query(query)
+
+	for rows.Next() {
+		t := TblTags{}
+		err := rows.Scan(&t.Id, &t.Tag)
+		if err != nil {
+			fmt.Printf("TblTag.Search: %s\n", err.Error())
+			continue
+		}
+
+		result = append(result, t)
+	}
+
+	return result, nil
 }
-*/
