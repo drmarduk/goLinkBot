@@ -13,7 +13,7 @@ func search(query string) bool {
 	}
 
 	for _, l := range links {
-		ctxIrc.WriteToChannel(fmt.Sprintf("[%s] %s: %s", l.Tstamp.Format("02.01.2006 15:04:05"), l.User, l.Url))
+		ctxIrc.WriteToChannel(fmt.Sprintf("[%s] {%s} %s: %s", l.Tstamp.Format("02.01.2006 15:04:05"), l.Id, l.User, l.Url))
 	}
 	return true
 }
