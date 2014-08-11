@@ -13,6 +13,14 @@ type Db struct {
 	con    *sql.DB
 }
 
+func (db *Db) Open() {
+	db.con.Open("sqlite3", db.DbFile)
+}
+
+func (db *Db) Close() {
+	db.con.Close()
+}
+
 type TblLinks struct {
 	Id     int
 	User   string
