@@ -3,12 +3,7 @@ package main
 var ctxIrc *Irc
 var ctxLog *Log
 
-//var ctxDb *Db
-
 func main() {
-	// database
-	//ctxDb = new(Db)
-	//ctxDb.DbFile = "goLinkBot.db"
 	// inmemory linklist
 	ctxLog = new(Log)
 	// irc bot

@@ -59,5 +59,7 @@ func parseIrcMsg(e *irc.Event) {
 		pos := strings.Index(tmp, " ")
 		id, _ := strconv.Atoi(tmp[:pos-1])
 		var tag string = tmp[pos:]
+
+		addTag(id, tag)
 	}
 }

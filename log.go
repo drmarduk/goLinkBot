@@ -11,7 +11,8 @@ type Log struct {
 }
 
 func (l *Log) AddLink(user, url, content string) {
-	link := make(TblLinks)
+	// orm db obj
+	link := &TblLinks{}
 	link.User = user
 	link.Url = url
 	link.Post = content
@@ -22,6 +23,8 @@ func (l *Log) AddLink(user, url, content string) {
 	if err != nil {
 		fmt.Printf("log.AddLink: %s\n", "Could not add new link")
 	}
+
+	fmt.Printf("%s added: %s", user, url)
 	// crawl
 	c := &Crawler{} // neu machen, mit channels evtl
 	c.Crawl(id, url)

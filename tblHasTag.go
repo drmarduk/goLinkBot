@@ -12,6 +12,8 @@ type TblHasTags struct {
 	User   string
 	Tstamp time.Time
 	Post   string
+
+	db *Db
 }
 
 /*

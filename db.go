@@ -13,6 +13,7 @@ type Db struct {
 }
 
 func (db *Db) Open() {
+	db.DbFile = "goLinkBot.db"
 	db.con, db.err = sql.Open("sqlite3", db.DbFile)
 	if db.err != nil {
 		fmt.Printf("db.NewLink: %s\n", db.err.Error())
