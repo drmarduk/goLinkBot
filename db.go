@@ -22,7 +22,7 @@ type TblLinks struct {
 	Src    []byte
 }
 
-func (db *Db) NewLink(user, url string, status int, timestmap time.Time) (int64, bool) {
+func (db *Db) NewLink(user, url, content string, status int, timestmap time.Time) (int64, bool) {
 	var err error
 	var result sql.Result
 	db.con, err = sql.Open("sqlite3", db.DbFile)

@@ -7,11 +7,10 @@ import (
 )
 
 type Crawler struct {
-	Url string
 }
 
-func (c *Crawler) Crawl(id int64) {
-	resp, err := http.Get(c.Url)
+func (c *Crawler) Crawl(id int64, url string) {
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Printf("crawler.Crawl: %s\n", err.Error())
 	}

@@ -6,33 +6,18 @@ import (
 	"time"
 )
 
-type Link struct {
-	Timestamp time.Time
-	User      string
-	Url       string
-	Status    int
-}
-
-func NewLink(user, content string) *Link {
-	return &Link{Timestamp: time.Now(), User: user, Url: content, Status: 0}
-}
-
 type Log struct {
-	LinkLog []*Link
+	//LinkLog []*Link
 }
 
-func (l *Log) AddLink(user, url string) {
-	// entweder oder?!
-	link := NewLink(user, url)
-	l.LinkLog = append(l.LinkLog, link)
-	id, err := ctxDb.NewLink(link.User, link.Url, link.Status, link.Timestamp) // in db adden
+func (l *Log) AddLink(user, url, content string) {
+	id, err := ctxDb.NewLink(user, url, content, 0, time.Now()) // in db adden
 	if err == false {
 		fmt.Printf("log.AddLink: %s\n", "Could not add new link")
 	}
 	// crawl
-
-	c := &Crawler{Url: url}
-	c.Crawl(id)
+	c := &Crawler{} // neu machen, mit channels evtl
+	c.Crawl(id, url)
 }
 
 func (l *Log) ParseContent(user, content string) {
@@ -41,7 +26,7 @@ func (l *Log) ParseContent(user, content string) {
 	if r.MatchString(content) {
 		links := r.FindAllString(content, -1)
 		for _, x := range links {
-			l.AddLink(user, x)
+			l.AddLink(user, x, content)
 		}
 	}
 
