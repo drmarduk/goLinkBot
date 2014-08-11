@@ -11,7 +11,7 @@ type Log struct {
 }
 
 func (l *Log) AddLink(user, url, content string) {
-	id, err := ctxDb.NewLink(user, url, content, 0, time.Now()) // in db adden
+	id, err := ctxDb.AddLink(user, url, content, 0, time.Now()) // in db adden
 	if err == false {
 		fmt.Printf("log.AddLink: %s\n", "Could not add new link")
 	}

@@ -6,8 +6,7 @@ import (
 	"net/http"
 )
 
-type Crawler struct {
-}
+type Crawler struct{}
 
 func (c *Crawler) Crawl(id int64, url string) {
 	resp, err := http.Get(url)
