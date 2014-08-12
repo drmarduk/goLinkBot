@@ -47,16 +47,26 @@ func parseIrcMsg(e *irc.Event) {
 	}
 	switch {
 	case text[0] == "!search":
-		search(strings.Join(text[1:], " "))
+		var pos int = 1
+		var stype bool = false
+		if text[1] == "--tags" || text[1] == "-t" { // set start pos in arry to join
+			pos = 2
+			stype = true
+		}
+		search(strings.Join(text[pos:], " "), stype)
+
 	case text[0] == "!linkinfo":
 		id, err := strconv.Atoi(text[1])
 		if err != nil {
+			ctxIrc.WriteToChannel("id is not vaid >:(")
 			return
 		}
 		linkinfo(id)
+
 	case text[0] == "!addtag":
 		id, err := strconv.Atoi(text[1])
 		if err != nil {
+			ctxIrc.WriteToChannel("id is not vaid >:(")
 			return
 		}
 		for _, t := range text[2:] {

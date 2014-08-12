@@ -10,17 +10,25 @@ func help() {
 	ctxIrc.WriteToChannel("I nomnom links. (!search <query>, !linkinfo <id>, !addtag <id> [tags])")
 }
 
-func search(query string) {
-	links, err := LinksSearch(query)
+func search(query string, tagonly bool) {
+	links, err := LinksSearch(query, tagonly)
 	if err != nil {
 		fmt.Printf("index.Search: %s\n", err.Error())
 		return
 	}
 
+	if len(links) == 0 {
+		ctxIrc.WriteToChannel("Sorry, no links found :/")
+		return
+	}
 	for _, l := range links {
 		ctxIrc.WriteToChannel(fmt.Sprintf("[%s] Id: %d %s: %s", l.Tstamp.Format("02.01.2006 15:04:05"), l.Id, l.User, l.Url))
 	}
 	return
+}
+
+func searchtags(query string) {
+
 }
 
 func linkinfo(id int) bool {
@@ -28,6 +36,7 @@ func linkinfo(id int) bool {
 	err := l.Open(id)
 	if err != nil {
 		fmt.Printf("index.linkinfo: Fehler beim Öffnen von Orm Objekt. %s\n", err.Error())
+		ctxIrc.WriteToChannel("Sorry, no info found :(")
 		return false
 	}
 

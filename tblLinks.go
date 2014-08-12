@@ -104,12 +104,30 @@ func (tbl *TblLinks) Addtag(tag string) bool {
 	return false
 }
 
-func LinksSearch(q string) (result []TblLinks, err error) {
+func LinksSearch(q string, tagonly bool) (result []TblLinks, err error) {
 	tbl := &Db{}
 	tbl.Open()
 	defer tbl.Close()
 
 	query := "select * from links where src like '%" + q + "%' order by tstamp asc"
+
+	query = `SELECT DISTINCT l.id, l.user, l.url, l.status, l.tstamp, l.post FROM links AS l
+			LEFT JOIN hastags AS h ON h.linkid = l.id
+			LEFT JOIN tags AS t ON h.tagid = t.id WHERE `
+	order := `ORDER BY l.tstamp ASC `
+	whereDefault := `l.user LIKE '%` + q + `%' OR
+				l.url LIKE '%` + q + `%' OR
+				l.post LIKE '%` + q + `%' OR
+				l.src LIKE '%` + q + `%' OR
+				t.tag LIKE '%` + q + `%' `
+	whereTagOnly := `t.tag LIKE '%` + q + `%' `
+
+	if tagonly {
+		query = query + whereTagOnly + order
+	} else {
+		query = query + whereDefault + order
+	}
+
 	rows, err := tbl.con.Query(query)
 	if err != nil {
 		fmt.Printf("tblLinks.Search: %s\n", err.Error())
@@ -119,7 +137,7 @@ func LinksSearch(q string) (result []TblLinks, err error) {
 	for rows.Next() {
 		l := TblLinks{}
 		err = rows.Scan(&l.Id, &l.User, &l.Url, &l.Status,
-			&l.Tstamp, &l.Src, &l.Post)
+			&l.Tstamp, &l.Post)
 
 		if err != nil {
 			fmt.Printf("db.Search: %s\n", err.Error())
