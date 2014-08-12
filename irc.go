@@ -35,23 +35,26 @@ func (i *Irc) WriteToChannel(content string) {
 }
 
 func parseIrcMsg(e *irc.Event) {
-	var user, content string
-	user = e.Nick
-	content = e.Arguments[1]
+	user := e.Nick
+	content := e.Arguments[1]
 	text := strings.Split(content, " ")
 
 	// adds link to db and crawls it
-	ctxLog.ParseContent(user, content) // generell immer machen bei link
+	ctxLog.ParseContent(user, content) // generell immer machen bei einem link
+
+	if len(text) < 2 {
+		return
+	}
 	switch {
-	case text[1] == "!search":
-		search(strings.Join(text[2:], " "))
-	case text[1] == "!linkinfo":
+	case text[0] == "!search":
+		search(strings.Join(text[1:], " "))
+	case text[0] == "!linkinfo":
 		id, err := strconv.Atoi(text[1])
 		if err != nil {
 			return
 		}
 		linkinfo(id)
-	case text[1] == "!addtag":
+	case text[0] == "!addtag":
 		id, err := strconv.Atoi(text[1])
 		if err != nil {
 			return
@@ -59,6 +62,8 @@ func parseIrcMsg(e *irc.Event) {
 		for _, t := range text[2:] {
 			addTag(id, t, user)
 		}
+	case text[0] == "!help":
+		help()
 	default:
 		return
 	}

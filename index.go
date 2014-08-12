@@ -6,17 +6,21 @@ import (
 	"strings"
 )
 
-func search(query string) bool {
+func help() {
+	ctxIrc.WriteToChannel("I nomnom links. (!search <query>, !linkinfo <id>, !addtag <id> [tags])")
+}
+
+func search(query string) {
 	links, err := LinksSearch(query)
 	if err != nil {
 		fmt.Printf("index.Search: %s\n", err.Error())
-		return false
+		return
 	}
 
 	for _, l := range links {
-		ctxIrc.WriteToChannel(fmt.Sprintf("[%s] {%s} %s: %s", l.Tstamp.Format("02.01.2006 15:04:05"), l.Id, l.User, l.Url))
+		ctxIrc.WriteToChannel(fmt.Sprintf("[%s] Id: %d %s: %s", l.Tstamp.Format("02.01.2006 15:04:05"), l.Id, l.User, l.Url))
 	}
-	return true
+	return
 }
 
 func linkinfo(id int) bool {
@@ -40,7 +44,7 @@ func linkinfo(id int) bool {
 func addTag(id int, tag, user string) bool {
 	fmt.Printf("LinkId: %d, Tag: %s, User: %s\n", id, tag, user)
 	t := &TblTags{}
-	t.Tag = tag
+	t.Tag = strings.TrimSpace(tag)
 	t.Save()
 
 	tht := &TblHasTags{}
