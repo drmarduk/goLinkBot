@@ -30,17 +30,29 @@ func (c *Crawler) Crawl(id int, url string) {
 	link.Open(id)
 	link.Src = src
 
-	id2, err := link.Save()
+	err := link.Save()
 	if err != nil {
 		fmt.Printf("crawler.Crawl: Fehler beim Speichern der Source. %s\n", err.Error())
 		return
 	}
 
-	fmt.Printf("Id: %s - Id2: %s\n", id, id2)
+}
 
-	if id != id2 {
-		fmt.Printf("crawler.Crawl: Eintrag wurde unter einer anderen Id gespeichert \n")
-		return
+type CrawlObject struct {
+	Linkid int
+	Url string
+}
+func crawlchan(chan cs CrawlObject) {
+
+	for {
+		select obj, chan_ok := <-cs {
+			if chan_ok {
+				// chan ok
+
+			} else {
+				// chan closed
+			}
+		}
 	}
 
 }

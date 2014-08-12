@@ -61,6 +61,27 @@ func (tbl *TblLinks) Save() error {
 	return nil
 }
 
+func (tbl *TblLinks) GetTags() []string {
+	if tbl.Id == 0 {
+		return nil
+	}
+
+	tbl.db = &Db{}
+	tbl.db.Open()
+	defer tbl.db.Close()
+
+	query := "select tag from tags join hastags on tags.id = hastags.tagid where hastags.linkid = ?"
+	rows, err := tbl.db.con.Query(query, tbl.Id)
+}
+
+func (tbl *TblLinks) Addtag(tag string) bool {
+	tbl.db = &Db{}
+	tbl.db.Open()
+	defer tbl.db.Close()
+
+	query := "insert into"
+}
+
 func LinksSearch(q string) (result []TblLinks, err error) {
 	tbl := &Db{}
 	tbl.Open()
