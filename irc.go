@@ -38,31 +38,28 @@ func parseIrcMsg(e *irc.Event) {
 	var user, content string
 	user = e.Nick
 	content = e.Arguments[1]
+	text := strings.Split(content, " ")
 
 	// adds link to db and crawls it
-	ctxLog.ParseContent(user, content)
-
-	// command handling
-	if strings.Contains(content, "!search ") {
-		var query string = strings.Replace(content, "!search ", "", 1)
-
-		search(query)
-	}
-
-	if strings.Contains(content, "!linkinfo ") {
-		id, _ := strconv.Atoi(strings.Replace(content, "!linkinfo ", "", 1))
-		linkinfo(id)
-	}
-
-	if strings.Contains(content, "!addTag ") {
-		arr := strings.Split(content, " ")
-		id, err := strconv.Atoi(arr[1])
+	ctxLog.ParseContent(user, content) // generell immer machen bei link
+	switch {
+	case text[1] == "!search":
+		search(strings.Join(text[2:], " "))
+	case text[1] == "!linkinfo":
+		id, err := strconv.Atoi(text[1])
 		if err != nil {
 			return
 		}
-
-		for _, t := range arr[2:] {
+		linkinfo(id)
+	case text[1] == "!addtag":
+		id, err := strconv.Atoi(text[1])
+		if err != nil {
+			return
+		}
+		for _, t := range text[2:] {
 			addTag(id, t, user)
 		}
+	default:
+		return
 	}
 }
