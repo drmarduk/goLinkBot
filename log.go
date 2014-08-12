@@ -19,15 +19,15 @@ func (l *Log) AddLink(user, url, content string) {
 	link.Status = 0
 	link.Tstamp = time.Now()
 
-	id, err := link.Save()
+	/*id, */ err := link.Save()
 	if err != nil {
 		fmt.Printf("log.AddLink: %s\n", "Could not add new link")
 	}
 
-	fmt.Printf("%s added: %s", user, url)
+	fmt.Printf("%s added: %s\n", user, url)
 	// crawl
 	c := &Crawler{} // neu machen, mit channels evtl
-	c.Crawl(id, url)
+	c.Crawl(link.Id, url)
 }
 
 func (l *Log) ParseContent(user, content string) {

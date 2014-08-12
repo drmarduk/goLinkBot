@@ -25,34 +25,29 @@ func (tbl *TblTags) Open(id int) error {
 	return nil
 }
 
-func (tbl *TblTags) Save() (int, error) {
+func (tbl *TblTags) Save() error {
 	tbl.db = &Db{}
 	tbl.db.Open()
 	defer tbl.db.Close()
 	var result sql.Result
 	var err error
 
-	if tbl.Id == 0 {
-		query := "insert into tags(tag) values(?)"
-		result, err = tbl.db.con.Exec(query, tbl.Tag)
-	}
-	if tbl.Id > 0 {
-		query := "update tags set tag = ? where id = ?"
-		result, err = tbl.db.con.Exec(query, tbl.Tag, tbl.Id)
-	}
+	query := "insert or replace into tags(id, tag) values((select id from tags where tag = ?), ?)"
+	result, err = tbl.db.con.Exec(query, tbl.Tag, tbl.Tag)
 
 	if err != nil {
 		fmt.Printf("TblTags.Save: %s\n", err.Error())
-		return 0, err
+		return err
 	}
 
 	id, err := result.LastInsertId()
 
 	if err != nil {
 		fmt.Printf("TblTags.Save: %s\n", err.Error())
-		return 0, err
+		return err
 	}
-	return int(id), nil
+	tbl.Id = int(id)
+	return nil
 }
 
 func (tbl *TblTags) Search(q string) ([]TblTags, error) {

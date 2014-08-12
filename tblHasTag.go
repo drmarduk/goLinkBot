@@ -19,16 +19,18 @@ type TblHasTags struct {
 /*
 	Fügt einem Link ein Tag hinzu
 */
-func (db *Db) AddTagToLink(linkid, tagid int, user string) bool {
-	db.Open()
-	defer db.Close()
+func (tbl *TblHasTags) Save() error {
+	tbl.db = &Db{}
+	tbl.db.Open()
+	defer tbl.db.Close()
+
 	query := "insert into hastags(linkid, tagid, user, tstamp) values(?, ?, ?, ?)"
-	_, err := db.con.Exec(query, linkid, tagid, user, time.Now())
+	_, err := tbl.db.con.Exec(query, tbl.LinkId, tbl.TagId, tbl.User, time.Now())
 	if err != nil {
 		fmt.Printf("db.AddTagToLink: %s\n", err.Error())
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
 /*

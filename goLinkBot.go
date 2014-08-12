@@ -7,7 +7,7 @@ func main() {
 	// inmemory linklist
 	ctxLog = new(Log)
 
-	go crawl
+	//go crawl
 
 	// irc bot
 	ctxIrc = new(Irc)
@@ -16,5 +16,3 @@ func main() {
 	ctxIrc.Port = 6697
 	ctxIrc.Run()
 }
-
-

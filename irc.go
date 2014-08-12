@@ -55,11 +55,14 @@ func parseIrcMsg(e *irc.Event) {
 	}
 
 	if strings.Contains(content, "!addTag ") {
-		tmp := strings.Replace(content, "!addTag ", "", 1)
-		pos := strings.Index(tmp, " ")
-		id, _ := strconv.Atoi(tmp[:pos-1])
-		var tag string = tmp[pos:]
+		arr := strings.Split(content, " ")
+		id, err := strconv.Atoi(arr[1])
+		if err != nil {
+			return
+		}
 
-		addTag(id, tag)
+		for _, t := range arr[2:] {
+			addTag(id, t, user)
+		}
 	}
 }

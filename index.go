@@ -27,17 +27,27 @@ func linkinfo(id int) bool {
 		return false
 	}
 
-	ctxIrc.WriteToChannel(fmt.Sprintf("Id: %s", l.Id))
+	ctxIrc.WriteToChannel(fmt.Sprintf("Id: %d", l.Id))
 	ctxIrc.WriteToChannel(fmt.Sprintf("Link: %s", l.Url))
 	ctxIrc.WriteToChannel(fmt.Sprintf("User: %s", l.User))
 	ctxIrc.WriteToChannel(fmt.Sprintf("Timestamp: %s", l.Tstamp.Format("02.01.2006 15:04:05")))
-	ctxIrc.WriteToChannel(fmt.Sprintf("Original Message: '%s'", l.Post))
+	ctxIrc.WriteToChannel(fmt.Sprintf("Original Message: %s", l.Post))
 	ctxIrc.WriteToChannel(fmt.Sprintf("Tags: %s", strings.Join(l.GetTags(), ", ")))
 
 	return true
 }
 
-func addTag(id int, tag string) bool {
-	return id == id && tag == tag
+func addTag(id int, tag, user string) bool {
+	fmt.Printf("LinkId: %d, Tag: %s, User: %s\n", id, tag, user)
+	t := &TblTags{}
+	t.Tag = tag
+	t.Save()
 
+	tht := &TblHasTags{}
+	tht.LinkId = id
+	tht.TagId = t.Id
+	tht.User = user
+
+	tht.Save()
+	return true
 }
