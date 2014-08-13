@@ -120,7 +120,7 @@ func LinksSearch(q string, tagonly bool) (result []TblLinks, err error) {
 				l.post LIKE '%` + q + `%' OR
 				l.src LIKE '%` + q + `%' OR
 				t.tag LIKE '%` + q + `%' `
-	whereTagOnly := `t.tag LIKE '%` + q + `%' `
+	whereTagOnly := `t.tag = ` + q + ` `
 
 	if tagonly {
 		query = query + whereTagOnly + order
